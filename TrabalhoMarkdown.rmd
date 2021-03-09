@@ -1,0 +1,449 @@
+---
+title: "Perfis metabólicos durante a fermentação de kimchi"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introdução
+
+  *Kimchi* é uma parte conhecida da gastronomia coreana. É uma receita fermentada confecionada com vegetais, especiarias e pode conter também *jeotgal*, que é um molho de peixes (e outros animais marinhos) salgados fermentados, sendo que *myeolchi-jeot* (anchovas salgadas) e *saeu-jeot* (camarões salgados) são os mais populares. Estes molhos são fermentados através das enzimas endógenas dos músculos e trato digestivo das espécies marinhas e também aumentam a produção de aminoácidos. A produção e qualidade do *kimchi* é amplamente relacionado com a comunidade bacteriana e da atividade dos metabolitos.
+ 	O trabalho de *Kim et al* estuda ambos estes parâmetros através de sequenciação de Illumina Miseq do gene 16S rRNA e ressonância magnética nuclear de protões (1H NMR). Para o propósito do estudo de metabólica só o 2º é de interesse.
+
+----
+#### Preparação:
+
+1. a couve chinesa foi mergulhada com solução salina 15% por 10h, lavadas 3 vezes manualmente com água, cujo excesso é drenado. Foram preparados dois tipos de *kimchi* com *jeotgal* foram preparados (um com *myeolchi-jeot* e outro com *saeu-jeot*) com 7,3% de sal. Outras 2 amostras, agora sem *jeotgal* também foram preparadas, sendo que neste caso o controlo será água ou salina a 7,3%, em vez do *jeotgal*. Os 4 tipos de *kimchi* foram colocadas em sacos respeitos e foram fermentados a 5ºC por 40 dias, sendo que estes foram periodicamente amostrados (com as maiores partículas filtradas). Estas amostras são centrifugadas e são separadas por pellets e sobrenadantes, sendo etiquetadas pelo nº de dias de fermentação e pelas seguintes labels: "CK": *kimchi* sem *jeotgal*; "NK" *kimchi* sem *jeotgal* mas com salinidade ajustada com sal; "SK": *kimchi* com *saeu-jeot*, e "MK": *kimchi* com *myeolchi-jeot*.
+
+
+2. como referido, é usado espetroscopia NMR para determinar o perfil metabólico das amostras. As amostras têm o seu pH reajustado a 6,0 e são depois liofilizadas. As amostras são suspensas em óxido de deutério (a 99,9%) com 0,5mM de sal 2,2-dimetil-2-silapentano-5-sulfonato de sódio. Após outra centrifugação dos sobrenadantes, as amostras são passadas para tubos de NMR. É então realizado o NMR usando sequência de pulsos PRESAT. Todos os espectros foram manualmente "faseados", as linhas de base foram corrigidas e suas intensidades espectrais reduzidas para espaçamentos integrais de largura 0.04ppm dentro de uma gama de 0.5-10.0 ppm, e os espaçamentos foram normalizados até uma intensidade de sinal DSS  para 0 ppm. Foram identidficados e quantificados os metabolitos individuais dos espetros usando o sal acima referido como controlo interno.
+
+Os dados desta análise metabolómica pode ser encontrados em MetaboLights, com o ID MTBLS654.
+
+*****
+
+## Importação dos dados
+
+```{skdnks}
+diretoria='C:/Users/Pedro/OneDrive/Documentos/UMinho/Extracao Conhecimento Bases de dados Biologicas/Trabalho'
+library(specmine)
+kimchi_data = read_varian_spectra_raw(paste(diretoria, "/1/data", sep=""), metadata_file =paste(diretoria, "metadata1.csv", sep=""), m.header_col=T, m.header_row=T, m.sep=",", samples.names = paste(diretoria, "samples_files.csv", sep=""), zipped=T, label.x="ppm", label.values="intensity")
+```
+Estes comandos, supostamente para importar os dados de espetros, dão erro, provavelmente porque faltam os zips de dados das amostras de tempo 40 dias. Apenas temos uma amostra, em vez de oito
+Deste modo, os dados tem que ser obtidos diretamente do metabolights, não podendo ser usado download automatico. Realiza-se o download do ficheiro "m_jeotgal_metabolite_profiling_NMR_spectroscopy_v2_maf.tsv", que contem dados de concentração de metabolitos para todas as amostras.
+
+****
+
+Devido ao erro na função anterior, foi-nos fornecidoo ficheiro do dataframe que seria suposto obter. De seguida foram realizados os plots dos espetrs de NMR obtidos para cada amostra
+
+```{nmr}
+library(specmine)
+
+mtbls654 = readRDS('mtbls654.Rdata')
+
+
+mtbls654_peaks=detect_nmr_peaks_from_dataset(mtbls654)
+
+# NMR: 0 dias de fermentação
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("0CKA","0NKA"), cex = 0.5, legend.place = "topright")
+title(main = "0 dias de fermentação: s/ jeotgal")
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("0MKA","0SKA"), cex = 0.5, legend.place = "topright")
+title(main = "0 dias de fermentação: c/ jeotgal")
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("0CKA","0NKA","0MKA","0SKA"), cex = 0.5, legend.place = "topright")
+title(main = "0 dias de fermentação")
+
+# NMR: 12 dias de fermentação
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("12CKA","12NKA"), cex = 0.5, legend.place = "topright")
+title(main = "12 dias de fermentação: s/ jeotgal")
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("12MKA","12SKA"), cex = 0.5, legend.place = "topright")
+title(main = "12 dias de fermentação: c/ jeotgal")
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("12CKA","12NKA","12MKA","12SKA"), cex = 0.5, legend.place = "topright")
+title(main = "12 dias de fermentação")
+
+
+# NMR: 20 dias de fermentação
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("20CKA","20NKA"), cex = 0.5, legend.place = "topright")
+title(main = "20 dias de fermentação: s/ jeotgal")
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("20MKA","20SKA"), cex = 0.5, legend.place = "topright")
+title(main = "20 dias de fermentação: c/ jeotgal")
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("20CKA","20NKA","20MKA","20SKA"), cex = 0.5, legend.place = "topright")
+title(main = "20 dias de fermentação")
+
+# NMR: 30 dias de fermentação
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("30CKA","30NKA"), cex = 0.5, legend.place = "topright")
+title(main = "30 dias de fermentação: s/ jeotgal")
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("30MKA","30SKA"), cex = 0.5, legend.place = "topright")
+title(main = "30 dias de fermentação: c/ jeotgal")
+
+plot_peaks(mtbls654_peaks, "Kimchi", samples = c("30CKA","30NKA","30MKA","30SKA"), cex = 0.5, legend.place = "topright")
+title(main = "30 dias de fermentação")
+```
+
+****
+
+```{r dgsd}
+kimchi_meta=read.csv("s_jeotgal.txt", sep='\t') #Metadados. Descrevem as amostras
+kimchi_instrumentation=read.csv("a_jeotgal_metabolite_profiling_NMR_spectroscopy.txt", sep='\t', stringsAsFactors = F)
+kimchi_data=read.csv("m_jeotgal_metabolite_profiling_NMR_spectroscopy_v2_maf.tsv", header = TRUE, sep = "\t")
+```
+
+Como o nome indica, estas 3 linhas importam os datasets de metadados, instrumentação e dados das amostras, respetivamente.
+
+*****
+
+## Pré-processamento
+
+Verificar as classes das colunas
+```{kimchi_meta, kimchi_instrumentation, kimchi_data}
+unlist(lapply(kimchi_data, class))
+unlist(lapply(kimchi_instrumentation, class))
+unlist(lapply(kimchi_meta, class))
+```
+Todas as concentrações são valores numéricos
+Procedemos para o tratamento de valores omissos
+Este código conta o nº de NAs por coluna:
+```{r nas}
+nas = unlist(lapply(lapply(kimchi_data, is.na), sum))
+nas = unname(nas); nas
+```
+Identifica quais as colunas sem qualquer valor e remove-as:
+```{r nas2}
+colsNA = which(nas==41)
+kimchi_data[colsNA]=NULL
+nas = unlist(lapply(lapply(kimchi_data, is.na), sum)); nas = unname(nas); nas
+```
+O resultado demonstra que já não há colunas só com NAs. No entanto, há uma coluna com um NA, que é necessário tratar por se tratar de uma concentração inexistente.
+O seguinte código encontra essa posição:
+```{r nas3}
+kimchi_data[which(nas==1)]
+kimchi_data[41,'metabolite_identification']
+kimchi_data[41 ,'X0MKA'] = kimchi_data[41, 'X0MKB']
+```
+Identificamos a concentração em falta, como sendo o succinato, da amostra 0MKB. Optamos por substituir este NA pelo valor de 0MKA, que é a amostra realizada exatamente nas mesmas condições. Pareceu-nos mais correto do que substituir pela média da linha correspondente ao succinato, porque o valor seria muito alterado pelos diferentes tempos e amostras, não correspondendo a uma aproximação aceitável.
+
+Este processo foi realizado para os outros dois datasets. De notar que no caso da instrumentação havia ainda colunas apenas com a string 'N/A', pelo que o processo foi ligeiramente diferente. Para os metadados foi igual:
+```{r nas4}
+#Para instrumentação
+nas = unlist(lapply(lapply(kimchi_instrumentation, is.na), sum))
+nas = unname(nas)
+colsNA = which(nas==80)
+kimchi_instrumentation[colsNA]=NULL
+nas = unlist(lapply(lapply(kimchi_data, is.na), sum)); nas = unname(nas)
+NAs = grep('N/A', kimchi_instrumentation)
+kimchi_instrumentation[NAs]=NULL
+
+#Para metadados
+nas = unlist(lapply(lapply(kimchi_meta, is.na), sum))
+nas = unname(nas)
+colsNA = which(nas==80)
+kimchi_meta[colsNA]=NULL
+nas = unlist(lapply(lapply(kimchi_data, is.na), sum)); nas = unname(nas)
+```
+****
+Realizou-se ainda um tratamento dos dados, de modo a facilitar a análise subsequente:
+```{r ordenação das amostras pelo dia e adição do dia aos metadados}
+concs = grep('numeric', lapply(kimchi_data, class))
+conc_metab = kimchi_data[concs]
+row.names(conc_metab) = kimchi_data$metabolite_identification
+
+conc_metab=conc_metab[ , order(names(conc_metab))]
+x1=colnames(conc_metab)
+x2=gsub('.{3}$', '', x1)
+x2_b=gsub('X[0-9]{1,2}', '', x1)
+x3=as.numeric(gsub("X", "", x2))
+x3=sort(x3)
+x3_1=as.character(x3)
+kimchi_meta = cbind(kimchi_meta,as.factor(paste(x3_1,"day", sep=""))) #acrescentar o nº de dias de fermentação aos metadados
+colnames(kimchi_meta)[length(kimchi_meta)] = "Fermentation_days"
+x3= paste("X", as.character(x3), sep="")
+x4=paste(x3, x2_b, sep="")
+conc_metab=conc_metab[ , x4]
+```
+Estas linhas retiram informação relativas aos metabolitos, dos dados, e organizam as amostras por tempo e por tipo, de modo a facilitar a análise/procura de dados. Ainda adicionam uma coluna aos metadados, que acrescenta informação relativa aos dias de fermentação.
+
+Após este tratamento, os dados e metadados foram escritos em dois ficheiros
+```{r escrita ficheros}
+write.csv(conc_metab,"concentracao_metabolitos.csv")
+write.csv(kimchi_meta,"metadados.csv")
+```
+
+Realizamos ainda uma transposição dos dados que facilita a análise das estatísticas relevantes dos metabolitos:
+```{r transposicao}
+conc_trans = as.data.frame(t(conc_metab[,1:ncol(conc_metab)]))
+dim(conc_trans)
+```
+
+****
+
+### Sumarização dos dados
+
+Estatística descritiva:
+```{r est_desc}
+sapply(conc_trans, mean)
+sapply(conc_trans, sd)
+sapply(conc_trans, median)
+```
+
+Poder-se-iam realizar mais análises, como por exemplo IQR, máximos, mínimos,...
+Optamos por não realizar nenhuma normalização/standardização dos dados, porque para além de aparentarem ter unidades de ordem de grandeza semelhante (dos valores obtidos atrás), os autores do artigo descreveram que os dados das concentrações a que temos acesso já foram tratados e normalizados.
+
+****
+
+Ainda decidimos agrupar as amostras A e B, que têm exatamente as mesmas condições experimentais, de modo a facilitar a construção dos gráficos:
+```{r agrupar}
+grouped=data.frame()
+for (i in seq(1,80,2)) {
+  x=(conc_trans[i,]+conc_trans[i+1,])/2
+  y=rownames(x)
+  y=gsub('A', '', y)
+  y=gsub('X', '', y)
+  rownames(x)=y
+  grouped = rbind(grouped, x)
+}
+```
+
+Este loop junta os replicados A e B de cada amostra, fazendo a média entre os 2.
+
+Construímos um boxplot para todos os metabolitos, incluindo todas as amostras.
+
+```{r boxplot}
+boxplot(grouped, col='orange')
+```
+
+Decidimos não fazer tratamento de outliers, porque como referido atrás, as amostras já tinham sido tratadas pelos autores. Para além disso, como estes boxplots são construídos tendo em conta amostras de todos os dias de fermentação e todos os tipos de kimchi, uma variação grande de valores é esperada. Por exemplo, é expectável que com o decorrer do tempo a concentração de açúcares essenciais para a fermentação, como é o caso da frutose, decresçam significativamente, explicando a maior variação observada. Os boxplots mais apropriados seriam para cada amostra específica (num dado dia). No entanto, como nestes dados apenas temos 2 valores para cada amostra, não será o suficiente para construir boxplots.
+
+*****
+
+Dos barplots reparamos um intervalo fora do normal para os dados do acetato. Decidimos construir uns barplots que permitem comparar concentrações de metabolitos entre amostras, em tempos diferentes. Realizamos para o acetato e ainda para frutose e glicina para comparar com os dados do artigo.
+
+```{r graphs}
+barplot(t(rbind(grouped$fructose[1:4], grouped$fructose[5:8], grouped$fructose[9:12], grouped$fructose[13:16], grouped$fructose[17:20], grouped$fructose[21:24], grouped$fructose[25:28], grouped$fructose[29:32], grouped$fructose[33:36], grouped$fructose[37:40])), col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias', ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main='Frutose')
+
+barplot(t(rbind(grouped$glycine[1:4], grouped$glycine[5:8], grouped$glycine[9:12], grouped$glycine[13:16], grouped$glycine[17:20], grouped$glycine[21:24], grouped$glycine[25:28], grouped$glycine[29:32], grouped$glycine[33:36], grouped$glycine[37:40])), col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias', ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main='Glicina')
+
+barplot(t(rbind(grouped$acetate[1:4], grouped$acetate[5:8], grouped$acetate[9:12], grouped$acetate[13:16], grouped$acetate[17:20], grouped$acetate[21:24], grouped$acetate[25:28], grouped$acetate[29:32], grouped$acetate[33:36], grouped$acetate[37:40])), col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias', ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main='Acetato')
+```
+
+Repara-se que o acetato apresenta concentrações diferentes das apresentadas no artigo deste estudo. A partir dos 12 dias a concentração desce drasticamente e há uma variação estranha para as amostras MK e SK.
+
+****
+## Estatística Univariada
+
+Recorrendo aos ficheiros criados de dados e metadados, utilizamos a função de ler estes ficheiros do specmine para relizar diversos testes estatísticos para os vários metabolitos
+
+```{r ttests}
+library(specmine)
+
+MTBLS654=read_dataset_csv(filename.data="concentracao_metabolitos.csv", filename.meta="metadados.csv", type="concentrations", description = "Concentrations data taken from MetaboLights study MTBLS654", label.x = "Names", label.values = "Concentrations", format="col")
+
+MTBLS654_CK_NK=subset_samples_by_metadata_values(MTBLS654,"Factor.Value.Kimchi.",c("kimchi without jeotgal","kimchi with salinity adjusted with salt instead of jeotgal"))
+MTBLS654_CK_NK_ttest=tTests_dataset(MTBLS654_CK_NK, "Factor.Value.Kimchi.")
+
+MTBLS654_MK_SK=subset_samples_by_metadata_values(MTBLS654,"Factor.Value.Kimchi.",c("kimchi with myeolchi-jeot","kimchi with saeu-jeot"))
+MTBLS654_MK_SK_ttest=tTests_dataset(MTBLS654_MK_SK, "Factor.Value.Kimchi.")
+
+
+#como não ha diferencas estatisticamente significativas entre CK e NK, todas as comparacoes serao apenas entre CK e as c/ jeotgal
+
+MTBLS654_CK_SK=subset_samples_by_metadata_values(MTBLS654,"Factor.Value.Kimchi.",c("kimchi without jeotgal","kimchi with saeu-jeot"))
+MTBLS654_CK_SK_ttest=tTests_dataset(MTBLS654_CK_SK, "Factor.Value.Kimchi.")
+
+MTBLS654_CK_MK=subset_samples_by_metadata_values(MTBLS654,"Factor.Value.Kimchi.",c("kimchi without jeotgal","kimchi with myeolchi-jeot"))
+MTBLS654_CK_MK_ttest=tTests_dataset(MTBLS654_CK_MK, "Factor.Value.Kimchi.")
+
+MTBLS654_0_40=subset_samples_by_metadata_values(MTBLS654,"Fermentation_days",c("0day","2day"))
+MTBLS654_0_40_ttest=tTests_dataset(MTBLS654_0_40, "Fermentation_days")
+#diferencas entre medias de glucose nao sao estatisticamente significativas; mas frutose e estatisticamente  significativas
+
+
+aov0_40=aov_all_vars(MTBLS654_0_40, "Fermentation_days")
+
+
+rownames(aov0_40[aov0_40$pvalues<0.05,])
+
+
+rownames(aov0_40[aov0_40$pvalues<0.05,]) %in% aa_list
+sum(rownames(aov0_40[aov0_40$pvalues<0.05,]) %in% aa_list)/length(aa_list)
+#apenas 30% dos aminoácidos tem diferencas estatisticamente significativas
+
+mul_anova=multifactor_aov_all_vars(MTBLS654, c("Factor.Value.Kimchi.","Fermentation_days"), "Factor.Value.Kimchi.*Fermentation_days")
+
+res_multi_anova=multifactor_aov_pvalues_table(mul_anova)
+
+res_multi_anova_var=multifactor_aov_varexp_table(mul_anova)
+
+
+#trimethylamine N-oxide(TMAO), trimethylamine (TMA),dimethylamine (DMA) diminui rapidamente
+MTBLS654_0_20=subset_samples_by_metadata_values(MTBLS654,"Fermentation_days",c("0day","20day"))
+MTBLS654_0_20_ttest=tTests_dataset(MTBLS654_0_20, "Fermentation_days")
+#todos metabolitos apresentam diferencas estatisticas estatisticamente significativas 
+
+MTBLS654_30_40=subset_samples_by_metadata_values(MTBLS654,"Fermentation_days",c("30day","40day"))
+MTBLS654_30_40_ttest=tTests_dataset(MTBLS654_30_40, "Fermentation_days")
+#so o trimethylamine N-oxide(TMAO) e que nao apresenta diferencas estatisticamente significativas
+```
+
+
+****
+
+Tal como foi observado no artigo, tentamos verificar as diferenças observadas entre as concentrações de amino ácidos no início e fim da fermentação, através de t-tests (ou testes de wilcox, caso a distribuição não fosse normal) comparando a concentração de cada amino ácido nos tempos 0 e 40 dias (2 extremos que permitem avaliar o desenvolvimento de modo geral).
+
+```{r t.tests aa}
+aa_list=c('alanine',"arginine","aspartate(1-)","glutamate(2-)",
+          "glutamine","glycine","isoleucine","leucine","L-lysine",
+          "methionine","phenylalanine","proline","serine","threonine",
+          "tryptophan","tyrosine","valine")
+ttest=c()
+for (i in 1:length(aa_list)){
+  
+aa_0=as.numeric(conc_metab[aa_list[i],grep("X0",colnames(conc_metab))])
+aa_40=as.numeric(conc_metab[aa_list[i],grep("X40",colnames(conc_metab))])
+if (shapiro.test(aa_0)$p.value>0.05 && shapiro.test(aa_40)$p.value>0.05){
+  ttest=c(ttest,t.test(aa_40,aa_0,"less")$p.value)
+}
+else{
+  ttest=c(ttest,wilcox.test(aa_40,aa_0,"less")$p.value) 
+}
+}
+aa_list[ttest<0.05]
+```
+Este código compara os aminoácidos um a um, entre os tempos 0 e 40, realizando uma verificação da normalidade para saber qual o teste a realizar: se for normal é o t-test, caso contrário é o shapiro-test. Aparecem listados os amino ácidos que apresentaram diferenças significativas.
+
+No caso dos nossos dados, este tipo de testes apenas são válidos para quando temos os 4 tipos de amostras juntos, porque para cada amostra, em cada dia, apenas temos 2 replicados, não sendo possível fazer t-tests para comparar essas amostras individuais.
+
+FALTA COMPARAR OS AMINO ACIDOS OBTIDOS COM OS QUE ESTÃO NO ARTIGO COMO OS QUE VARIAM
+
+*****
+
+O seguinte é um teste para verificar diferencas de proporções entre as frações de concentrações finais/inicias de frutose e glucose. Este teste serve para comparar a taxa de consumo de glucose com a frutose, de modo a tentar chegar à mesma conclusão que no artigo.
+
+```{r prop test gluc/frut, warning=FALSE}
+frut_0=conc_metab['fructose',grep("X0",colnames(conc_metab))]
+frut_40=conc_metab['fructose',grep("X40",colnames(conc_metab))]
+prop_frut=as.numeric(frut_40)/as.numeric(frut_0)
+prop_frut_mean=sum(prop_frut)/length(prop_frut)
+
+
+glu_0=conc_metab['glucose',grep("X0",colnames(conc_metab))]
+glu_40=conc_metab['glucose',grep("X40",colnames(conc_metab))]
+prop_glu=as.numeric(glu_40)/as.numeric(glu_0)
+prop_glu_mean=sum(prop_glu)/length(prop_glu)
+
+prop.test(prop_frut_mean,length(frut_0),p=prop_glu_mean,"less")
+```
+
+Como o p-value é menor que 0.05, a frutose e consumida mais rapidamente que glucose, tal como se verificou pelos autores, sendo que a frutose será a principal fonte de energia por parte dos organismos que participam na fermentação.
+
+Analisámos, a seguir, as proporções de frutose entre os 4 tipos de kimchi.
+
+```{r prop frutose}
+frut_0=as.numeric(conc_metab['fructose',grep("X0",colnames(conc_metab))])
+frut_40=as.numeric(cbind(conc_metab['fructose',grep("X40",colnames(conc_metab))]))
+prop_frut=frut_40/frut_0
+vet_props=c()
+prop_mean=mean(prop_frut)
+for (i in 1:length(prop_frut)){vet_props=c(vet_props,prop_mean)}
+chisq.test(rbind(frut_40,frut_0),p=vet_props)
+```
+
+Verifica-se um p-value menor que 0.05, pelo que não se encontram diferenças significativas entre as proporções. Então a diminuição de frutose é semelhante em todas as amostras.
+
+*****
+
+Para verificar as diferenças nas amostras, ao longo do tempo, recorremos a gráficos de barras, devido também à natureza dos nossos dados. Em seguida estão as linhas necessárias para criar os gráficos de barras para diferentes metabolitos.
+TENTAR EXPLICAR ESTA PARTE MELHOR, OU FAZER TESTE A SÉRIO???
+
+```{r barplots}
+metab_interesse=c("lactate","mannitol","trimethylamine N-oxide","trimethylamine","dimethylamine")
+
+barplot(t(rbind(grouped$lactate[1:4], grouped$lactate[5:8], grouped$lactate[9:12], grouped$lactate[13:16], grouped$lactate[17:20], grouped$lactate[21:24], grouped$lactate[25:28], grouped$lactate[29:32], grouped$lactate[33:36], grouped$lactate[37:40])),
+        col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias',
+        ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main='lactate')
+```
+
+Lactato: normalmente maior em SK e MK na maioria das amostras
+
+```{r barplots2}
+barplot(t(rbind(grouped$mannitol[1:4], grouped$mannitol[5:8], grouped$mannitol[9:12], grouped$mannitol[13:16], grouped$mannitol[17:20], grouped$mannitol[21:24], grouped$mannitol[25:28], grouped$mannitol[29:32], grouped$mannitol[33:36], grouped$mannitol[37:40])),
+        col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias',
+        ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main='mannitol')
+```
+
+Mannitol: normalmente maior em SK e MK na maioria das amostras
+
+```{r barplots3}
+barplot(t(rbind(grouped$"trimethylamine N-oxide"[1:4], grouped$"trimethylamine N-oxide"[5:8], grouped$"trimethylamine N-oxide"[9:12], grouped$"trimethylamine N-oxide"[13:16], grouped$"trimethylamine N-oxide"[17:20], grouped$"trimethylamine N-oxide"[21:24], grouped$"trimethylamine N-oxide"[25:28], grouped$"trimethylamine N-oxide"[29:32], grouped$"trimethylamine N-oxide"[33:36], grouped$"trimethylamine N-oxide"[37:40])),
+        col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias',
+        ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main="trimethylamine N-oxide")
+```
+
+Trimethylamine N-oxide: decresce rápido, mas concentrações estabelizam por volta dos 20 dias
+
+```{r barplots4}
+barplot(t(rbind(grouped$trimethylamine[1:4], grouped$trimethylamine[5:8], grouped$trimethylamine[9:12], grouped$trimethylamine[13:16], grouped$trimethylamine[17:20], grouped$trimethylamine[21:24], grouped$trimethylamine[25:28], grouped$trimethylamine[29:32], grouped$trimethylamine[33:36], grouped$trimethylamine[37:40])), col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias', ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main="trimethylamine")
+```
+
+Trimethylamine N-oxide: decresce rápido, mas concentrações estabelizam por volta dos 16 dias
+
+```{r barplots5}
+barplot(t(rbind(grouped$dimethylamine[1:4], grouped$dimethylamine[5:8], grouped$dimethylamine[9:12], grouped$dimethylamine[13:16], grouped$dimethylamine[17:20], grouped$dimethylamine[21:24], grouped$dimethylamine[25:28], grouped$dimethylamine[29:32], grouped$dimethylamine[33:36], grouped$dimethylamine[37:40])), col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias', ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main="dimethylamine")
+```
+
+Dimethylamine N-oxide: decresce rápido, mas concentrações estabilizam por volta dos 16 dias
+
+CHEGAR ÀS MESMAS CONCLUSÕES QUE NO ARTIGO
+
+*****
+
+Ainda tentamos comprovar um dos resultados dos artigos, de que as concentrações de isoleucina,leucina e valina em CK e NK são menores do que 2mM. Recorremos à visualização gráfica.
+
+```{r barplot aa}
+barplot(t(rbind(grouped$isoleucine[1:4], grouped$isoleucine[5:8], grouped$isoleucine[9:12], grouped$isoleucine[13:16], grouped$isoleucine[17:20], grouped$isoleucine[21:24], grouped$isoleucine[25:28], grouped$isoleucine[29:32], grouped$isoleucine[33:36], grouped$isoleucine[37:40])), col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias', ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main='Isoleucina')
+
+barplot(t(rbind(grouped$leucine[1:4], grouped$leucine[5:8], grouped$leucine[9:12], grouped$leucine[13:16], grouped$leucine[17:20], grouped$leucine[21:24], grouped$leucine[25:28], grouped$leucine[29:32], grouped$leucine[33:36], grouped$leucine[37:40])), col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias', ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main='Leucina')
+
+barplot(t(rbind(grouped$valine[1:4], grouped$valine[5:8], grouped$valine[9:12], grouped$valine[13:16], grouped$valine[17:20], grouped$valine[21:24], grouped$valine[25:28], grouped$valine[29:32], grouped$valine[33:36], grouped$valine[37:40])), col=c(1:4), beside = T, names.arg = c(0,2,5,8,12,16,20,25,30,40), xlab = 'Tempo de fermentação em dias', ylab='Concentração em mM', legend.text = c('CK', 'MK', 'NK', 'SK'), main='Valina')
+```
+
+AINDA ESTÁ A SER FEITO POR ANOVAS TAMBEM
+
+*****
+
+Tentamos verificar que as concentrações em MK e SK dobraram para esses metabolitos (em relação a CK e NK, no final da fermentação). Para tal, recorremos a prop.tests que comparam a média das amostras CK e NK com MK e SK, aos 40 dias de fermentação.
+
+```{r proptests aa, warning=FALSE}
+isoleuc_40MK=as.numeric(conc_metab['isoleucine',grep("40MK",colnames(conc_metab))])
+isoleuc_40SK=as.numeric(conc_metab['isoleucine',grep("40SK",colnames(conc_metab))])
+isoleuc_40CK=as.numeric(conc_metab['isoleucine',grep("40CK",colnames(conc_metab))])
+isoleuc_40NK=as.numeric(conc_metab['isoleucine',grep("40NK",colnames(conc_metab))])
+
+prop.test(mean(c(isoleuc_40CK,isoleuc_40NK)), mean(c(isoleuc_40MK,isoleuc_40SK)))
+
+leuc_40MK=as.numeric(conc_metab['leucine',grep("40MK",colnames(conc_metab))])
+leuc_40SK=as.numeric(conc_metab['leucine',grep("40SK",colnames(conc_metab))])
+leuc_40CK=as.numeric(conc_metab['leucine',grep("40CK",colnames(conc_metab))])
+leuc_40NK=as.numeric(conc_metab['leucine',grep("40NK",colnames(conc_metab))])
+
+prop.test(mean(c(leuc_40CK,leuc_40NK)), mean(c(leuc_40MK,leuc_40SK)))
+
+val_40MK=as.numeric(conc_metab['valine',grep("40MK",colnames(conc_metab))])
+val_40SK=as.numeric(conc_metab['valine',grep("40SK",colnames(conc_metab))])
+val_40CK=as.numeric(conc_metab['valine',grep("40CK",colnames(conc_metab))])
+val_40NK=as.numeric(conc_metab['valine',grep("40NK",colnames(conc_metab))])
+
+prop.test(mean(c(val_40CK,val_40NK)), mean(c(val_40MK,val_40SK)))
+```
+

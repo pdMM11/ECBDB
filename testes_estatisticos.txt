@@ -1,0 +1,20 @@
+Kimchi s/ jeotgal ligeiramente com maior aminoacidos
+(alanina,arginina, glutamato,isoleucina,leucina,lisina,valina,gamma-aminibutyric maior em s/ jeotgal)
+
+40 dias: alanina,arginina,glutamato e lisina em SK maiores que CK e NK; MK significativamente maiores que restantes
+
+Isoleucina,leucina e valina menos que 2mM; MK e CK dobraram nesse tempo para esses metabolitos
+
+GABA: aumentou e depois diminui; maior em MK e SK ate aos 16dias de fermentacao
+
+XXXXX (FEITO) 1)maioria dos aa diminuiu ao longo da fermentacao (scale 0 e 40, metabolitos: ttest)
+
+XXXXX (FEITO) 2)frutose diminui mais rapido que a glucose (scale 0 e 40, metabolitos: ttest) 
+
+XXXXX (FEITO) 3)diminuicao da frutose semelhante em todas as amostras (grafico?)
+
+4)acetato,lactato e mannitol maior em MK e SK durante fermentacao (anova)
+
+5)trimethylamine N-oxide(TMAO), trimethylamine (TMA),dimethylamine (DMA) diminui rapidamente (scale: anova)
+
+6) mas e relativamente constante no fim da fermentacao (scale: anova)

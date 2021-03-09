@@ -1,0 +1,80 @@
+---
+title: "Perfis metabólicos durante a fermentação de *kimchi* - Parte 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages, include=FALSE}
+setwd('C:/Users/Pedro/OneDrive/Documentos/UMinho/Extracao Conhecimento Bases de dados Biologicas/Trabalho')
+library(specmine)
+load('.RData')
+```
+
+*****
+
+Andreia Rodrigues, PG12573
+
+Pedro Moreira, PG38277
+
+Pedro Araújo, PG37044
+
+*****
+
+### Redução de dimensionalidade
+
+Para esta análise decidimos realizar o PCA, por estar disponível numa função de specmine, facilitando a execução do código e plot de gráficos. Estas funções, por defeito, fazem scaling dos dados, que é necessário para a execução desta técnica.
+
+
+```{r pca}
+pca_normal=pca_analysis_dataset(MTBLS654)
+pca_importance(pca_normal)
+pca_screeplot(pca_normal)
+```
+
+
+A primeira linha realiza um PCA normal, gerando componentes principais (PC). As restantes servem para verificar quais as necessárias para explicar a maioria da variabilidade dos dados. Verifica-se que são necessárias 7 componentes principais para explicar 90% da variabilidade.
+
+
+Utilizando as 2 primeiras PC, que são as que explicam a maior parte da variação dos dados, é possível construir um plot, em que é possível identificar alguns clusters correspondentes às condiuções experimentais.
+
+
+```{r pc_plots2d}
+pca_scoresplot2D(MTBLS654, pca_normal, "Factor.Value.Kimchi.", ellipses = TRUE, pallette = "Paired", labels = FALSE)
+pca_scoresplot2D(MTBLS654, pca_normal, "Fermentation_days", ellipses = TRUE, pallette = "Paired", labels = FALSE)
+
+```
+
+
+Verificamos que os dados correspondentes às condições de *kimchi* com *myeolchi-jeot* e *saeu-jeot* encontram-se em clusters diferentes entre eles e entre as outras duas condições. Esta observação está em linha com o que tinha sido observado na primeira parte do trabalho, em que as concentrações dos metabolitos, foram em grande parte diferentes. Do mesmo modo, não se observam distinções entre os clusters de *kimchi* sem *jeot-gal*, sendo que também tinha sido observado que não haviam grandes diferenças nas concentrações de metabolitos nestas duas condições.
+
+Fizemos também uma análise relativa aos dias de fermentação. Observa-se o agrupamento dos clusters relativos aos 40, 30, 25 e um pouco com 20, dias de fermentação. Este resultado faz sentido, visto ter também sido observado na primeira parte do trabalho que na parte final da fermentação, ocorria pouca variação das concentrações. Para as restantes condições, verifica-se um ligeiro alinhamento das condições 0, 5, 8 dias, embora pouco evidente, devido também a uma variação maior de metabolitos nestes tempos.
+
+
+Podemos realizar o mesmo plot, mas a 3 dimensões, com as três PCs mais importantes, sendo que as observações são equivalentes às anteriores.
+
+
+```{r pc_plots3d}
+pca_scoresplot3D(MTBLS654, pca_normal, "Factor.Value.Kimchi.")
+pca_scoresplot3D(MTBLS654, pca_normal, "Fermentation_days")
+```
+
+
+Construimos um bibplot, que permite vizualizar os scores e loadings dos PCs. Este gráfico é mais útil que executar os comandos que apresentam apenas os valores (`pca_normal$rotation` e `pca_normal$x`), por permitir perceber facilmente quais os metabolitos que influenciam mais os PCs.
+
+
+```{r }
+pca_biplot(MTBLS654, pca_normal, colors="Factor.Value.Kimchi.")
+
+```
+
+
+Verifica-se que, de facto, o PC1 é o que explica a maior variabilidade dos dados, por se observar um número maior de metabolitos a ter um peso maior nesta componente (vetores mais horizontais). Também é possível saber quais os metabolitos mais proximamente relacionados em termos de comportamento, se os vetores tiverem sentidos e direções próximas. Um exemplo, é o caso dos amino ácidos, sendo que na maioria apresentam correlações próximas e a maior parte tem peso grande na componente PC2.
+
+Esta análise também seria possível com 3 dimensões (PC1, 2 e 3), no entanto o tipo de gráficos gerados não é compatível com o markdown.
+
+*****
+
+### Clustering
